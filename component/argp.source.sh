@@ -42,7 +42,7 @@
 #       Indicates unknown parse state or token type.
 #
 ###############################################################################
-argp_parse () {
+argp_parse() {
   local -r cmmdLnArgListNm="$1"
   local -r argumentListNm="$2"
   local -r argumentMapNm="$3"
