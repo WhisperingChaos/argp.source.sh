@@ -2,6 +2,52 @@
 source "./argp.source_test_sh/base/MessageInclude.sh";
 source "./argp.source_test_sh/base/argp.source.sh";
 source "./argp.source_test_sh/base/ArrayMapTestInclude.sh";
+
+argp_cmd_serialize_test(){
+	
+	argp_cmd_serialize_direct_test
+
+	argp_cmd_serialize_indirect_test
+	
+}
+
+
+argp_cmd_serialize_direct_test(){
+
+	local -a optArgList
+	argp_cmd_serialize 'optArgList' "-a" "-b" "--purge" "-cde" "Arg1"
+	ArrayAssertValues $LINENO 'optArgList' '-a' '-b' '--purge' '-cde' 'Arg1'
+
+	unset optArgList
+	local -a optArgList
+	argp_cmd_serialize 'optArgList' "-a=bb" "--back=back" "--path" "./abc/def.txt" "--purge" "-cde" "Arg1"
+	ArrayAssertValues $LINENO 'optArgList' '-a=bb' '--back=back' '--path' './abc/def.txt'   '--purge' '-cde' 'Arg1'
+	
+	unset optArgList
+	local -a optArgList
+	argp_cmd_serialize 'optArgList' '"-a=bb"' 'a"b' "a'b"
+	ArrayAssertValues $LINENO 'optArgList' '"-a=bb"' 'a"b' 'a'"'"'b'
+}
+
+
+argp_cmd_serialize_indirect_test(){
+
+	local -a optArgList
+
+	local -r varExpansion='$expanededOptExpected'
+	local -r expanededOptExpected='abort-double-expansion-occurred'
+	argp_cmd_serialize_call_test 'optArgList' "--$varExpansion=hello" "-a" "--help" 
+	ArrayAssertValues $LINENO 'optArgList' '--$expanededOptExpected=hello' '-a' '--help'
+
+}
+
+
+argp_cmd_serialize_call_test(){
+
+	argp_cmd_serialize "$@"
+}
+
+
 ###############################################################################
 ##
 ##  Purpose:
@@ -273,6 +319,7 @@ function OptionsArgsFilterTest () {
 ##
 ###############################################################################
 function main (){
+	if ! argp_cmd_serialize_test;       then ScriptUnwind $LINENO "Unexpected return code: '$?', should be '0'"; fi
   if ! ArgumentsParseTest;            then ScriptUnwind $LINENO "Unexpected return code: '$?', should be '0'"; fi
   if ! OptionsArgsFilterTest;         then ScriptUnwind $LINENO "Unexpected return code: '$?', should be '0'"; fi
 }

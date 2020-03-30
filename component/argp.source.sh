@@ -2,6 +2,35 @@
 ##############################################################################
 #
 #   Purpose:
+#     Assign options and arguments into an array ordered by their command line
+#     position.
+#
+#   Assumption:
+#     Since bash variable names are passed to this routine, these names
+#     cannot overlap the variable names locally declared within the
+#     scope of this routine or its descendants.
+#
+#   Input:
+#     $1    - Variable name to standard array which will contain 
+#             options and arguments ordered by their command line position.
+#     $2-$N - options and agruments forwarded from the command line.
+#  
+#   Output:
+#     $1 - Array elements now reflect option and agrument values.
+#
+###############################################################################
+argp_cmd_serialize(){
+  local -r argpArrayNm=$1
+
+  shift
+  while [[ $# -ne 0 ]]; do
+    eval $argpArrayNm\+\=\(\"\$1\"\)
+    shift
+  done
+}
+##############################################################################
+#
+#   Purpose:
 #     Parse command line arguments into an associative array and preserve their
 #     positioning via a regular array.  There are essentially two
 #     classes of arguments: options and arguments.  Options control behavior
